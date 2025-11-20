@@ -124,12 +124,18 @@
     countEl.textContent = (data || []).length;
 
     msgsEl.innerHTML = (data || []).map(r => {
-      const it = parseRow(r);
-      const when = new Date(it.created_at).toLocaleString();
-      return `
-${esc(it.name)}: ${esc(it.message)} ${when}
-`;
-    }).join('');
+  const it = parseRow(r);
+  const when = new Date(it.created_at).toLocaleString();
+
+  return `
+    <div class="border rounded p-2">
+      <div class="fw-semibold">${esc(it.name)}</div>
+      <div>${esc(it.message)}</div>
+      <div class="small text-muted">${when}</div>
+    </div>
+  `;
+}).join('');
+
 
     statusEl.textContent = 'Klar';
   }

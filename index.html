@@ -23,7 +23,35 @@
     </div>
   </nav>
 
-  <main class="container my-4">
+ <main class="container my-4">
+
+  <!-- LOGIN-KORT -->
+  <div id="auth-area" class="mb-4">
+    <div class="card card-elev shadow-sm">
+      <div class="card-body">
+        <h2 class="h6 mb-3">Logg inn</h2>
+        <p class="text-muted small mb-3">
+          Du må logge inn med skole-epost (<code>@stud.akademiet.no</code>) for å sende og se meldinger.
+        </p>
+        <form id="login-form" class="row g-2">
+          <div class="col-12 col-md-4">
+            <input id="login-email" type="email" class="form-control" placeholder="din@stud.akademiet.no" required>
+          </div>
+          <div class="col-12 col-md-4">
+            <input id="login-password" type="password" class="form-control" placeholder="Passord" required>
+          </div>
+          <div class="col-12 col-md-4 d-flex gap-2">
+            <button class="btn btn-primary flex-grow-1" type="submit">Logg inn / registrer</button>
+            <button class="btn btn-outline-secondary" type="button" id="logout-btn">Logg ut</button>
+          </div>
+        </form>
+        <p id="login-status" class="mt-2 small text-muted">Ikke innlogget.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SELVE APPEN – SKJULES TIL MAN ER LOGGET INN -->
+  <div id="app-area" class="d-none">
     <header class="text-center mb-4">
       <h1 class="h4 fw-bold">Navn + kort melding</h1>
       <p class="text-muted mb-0">Skriver til databasen og viser under.</p>
@@ -66,25 +94,51 @@
         </div>
       </div>
     </section>
-  </main>
+  </div>
+</main>
+
 
   <!-- Laster Supabase-biblioteket som gjør det mulig å kommunisere med databasen -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <!-- Her starter vårt eget JavaScript -->
+<!-- Supabase-bibliotek -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- Supabase-bibliotek -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- Supabase-bibliotek -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
   // 🔑 Koble nettsiden til ditt Supabase-prosjekt
   const SUPABASE_URL = "https://aiseafkfjhixolxezjjq.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_mdoTv5Opu_0idPCaV64_6A_nIegPRg1";
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // Henter elementene fra skjemaet og siden
+  const ALLOWED_DOMAIN = "@stud.akademiet.no";
+
+  // Auth-UI
+  const loginForm = document.getElementById('login-form');
+  const loginEmailInput = document.getElementById('login-email');
+  const loginPasswordInput = document.getElementById('login-password');
+  const loginStatusEl = document.getElementById('login-status');
+  const logoutBtn = document.getElementById('logout-btn');
+  const appArea = document.getElementById('app-area');
+
+  // Meldings-UI
   const form = document.getElementById('form');
   const nameInput = document.getElementById('name');
   const contentInput = document.getElementById('content');
   const msgsEl = document.getElementById('msgs');
   const statusEl = document.getElementById('status');
   const countEl = document.getElementById('count');
+
+  // Holder på innlogget bruker
+  let currentUser = null;
 
   // Gjør tekst trygg for visning (hindrer HTML-injeksjon)
   function esc(s) {
@@ -124,27 +178,134 @@
     countEl.textContent = (data || []).length;
 
     msgsEl.innerHTML = (data || []).map(r => {
-  const it = parseRow(r);
-  const when = new Date(it.created_at).toLocaleString();
+      const it = parseRow(r);
+      const when = new Date(it.created_at).toLocaleString();
 
-  return `
-    <div class="border rounded p-2">
-      <div class="fw-semibold">${esc(it.name)}</div>
-      <div>${esc(it.message)}</div>
-      <div class="small text-muted">${when}</div>
-    </div>
-  `;
-}).join('');
-
+      return `
+        <div class="border rounded p-2">
+          <div class="fw-semibold">${esc(it.name)}</div>
+          <div>${esc(it.message)}</div>
+          <div class="small text-muted">${when}</div>
+        </div>
+      `;
+    }).join('');
 
     statusEl.textContent = 'Klar';
   }
+
+  // Sjekk at e-post har riktig domene
+  function hasAllowedDomain(email) {
+    if (!email) return false;
+    const clean = email.trim().toLowerCase();
+    const domain = ALLOWED_DOMAIN.toLowerCase();
+    return clean.endsWith(domain);
+  }
+
+  // Oppdater UI basert på om bruker er innlogget eller ikke
+  function updateAuthUI() {
+    if (currentUser && hasAllowedDomain(currentUser.email)) {
+      appArea.classList.remove('d-none');
+      loginStatusEl.textContent = 'Logget inn som ' + currentUser.email;
+    } else {
+      appArea.classList.add('d-none');
+      loginStatusEl.textContent = 'Ikke innlogget. Logg inn med ' + ALLOWED_DOMAIN + '.';
+    }
+  }
+
+  // Sjekk innlogging ved side-load
+  async function ensureAuthOnLoad() {
+    loginStatusEl.textContent = 'Sjekker innlogging...';
+
+    const { data } = await supabase.auth.getUser();
+    if (data?.user && hasAllowedDomain(data.user.email)) {
+      currentUser = data.user;
+      updateAuthUI();
+      await loadMessages();
+    } else {
+      currentUser = null;
+      await supabase.auth.signOut();
+      updateAuthUI();
+    }
+  }
+
+  // Håndter login-skjema
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    let email = loginEmailInput.value.trim().toLowerCase();
+    const password = loginPasswordInput.value;
+
+    if (!email || !password) {
+      loginStatusEl.textContent = 'Skriv inn både e-post og passord.';
+      return;
+    }
+
+    if (!hasAllowedDomain(email)) {
+      loginStatusEl.textContent = 'E-posten må slutte på ' + ALLOWED_DOMAIN + '.';
+      return;
+    }
+
+    loginStatusEl.textContent = 'Logger inn...';
+
+    // 1) Prøv å logge inn med e-post + passord
+    let { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (signInError) {
+      // Hvis ingen bruker / feil passord -> prøv å lage bruker
+      if (signInError.message.includes('Invalid login credentials')) {
+        loginStatusEl.textContent = 'Fant ikke bruker, oppretter ny...';
+
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email,
+          password
+        });
+
+        if (signUpError) {
+          loginStatusEl.textContent = 'Feil ved oppretting av bruker: ' + signUpError.message;
+          return;
+        }
+
+        currentUser = signUpData.user;
+        updateAuthUI();
+        loginStatusEl.textContent = 'Bruker opprettet og logget inn som ' + currentUser.email;
+        form && (statusEl.textContent = 'Klar');
+        await loadMessages();
+        return;
+      }
+
+      // Andre feil
+      loginStatusEl.textContent = 'Feil ved innlogging: ' + signInError.message;
+      return;
+    }
+
+    // Innlogging ok
+    currentUser = signInData.user;
+    updateAuthUI();
+    loginStatusEl.textContent = 'Logget inn som ' + currentUser.email;
+    await loadMessages();
+  });
+
+  // Logg ut-knapp
+  logoutBtn.addEventListener('click', async () => {
+    await supabase.auth.signOut();
+    currentUser = null;
+    updateAuthUI();
+    statusEl.textContent = 'Du er logget ut.';
+  });
 
   // Sender inn ny melding når eleven trykker "Lagre"
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     form.classList.add('was-validated');
     if (!form.checkValidity()) return;
+
+    if (!currentUser || !currentUser.email || !hasAllowedDomain(currentUser.email)) {
+      statusEl.textContent = 'Du må være logget inn med ' + ALLOWED_DOMAIN + ' for å sende meldinger.';
+      return;
+    }
 
     const name = nameInput.value.trim();
     const msg = contentInput.value.trim();
@@ -154,7 +315,6 @@
     submitBtn.disabled = true;
     statusEl.textContent = 'Lagrer...';
 
-    // Sender data til Supabase-tabellen "messages"
     const { error } = await supabase
       .from('messages')
       .insert({ content: name + '::' + msg });
@@ -166,19 +326,21 @@
       return;
     }
 
-    // Nullstiller skjema og fjerner valideringsklassen
     form.reset();
     form.classList.remove('was-validated');
     statusEl.textContent = 'Lagret!';
     nameInput.focus();
 
-    // Oppdaterer visningen
     await loadMessages();
   });
 
-  // Kjører første opplasting av meldinger når siden lastes
-  loadMessages();
+  // Start: sjekk om noen er logget inn fra før
+  ensureAuthOnLoad();
 </script>
+
+
+
+
 
           </body>
           </html>

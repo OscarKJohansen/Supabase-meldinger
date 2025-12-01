@@ -29,6 +29,17 @@
     <nav class="navbar navbar-expand-md bg-white border-bottom">
       <div class="container">
         <a class="navbar-brand fw-semibold" href="#">Supabase demo</a>
+        <!-- Role + user badges -->
+        <div class="ms-auto d-flex align-items-center gap-2">
+          <span
+            id="role-badge"
+            class="badge rounded-pill text-bg-secondary d-none"
+            >Bruker</span
+          >
+          <span id="user-badge" class="badge rounded-pill text-bg-light"
+            >Gjest</span
+          >
+        </div>
       </div>
     </nav>
 
@@ -39,8 +50,8 @@
           <div class="card-body">
             <h2 class="h6 mb-3">Logg inn</h2>
             <p class="text-muted small mb-3">
-              Du må logge inn med skole-epost (<code>@stud.akademiet.no</code>)
-              og bekrefte den via e-post før du kan sende og se meldinger.
+              Logg inn med e-post og passord. Bekreft e-posten via lenken du får
+              tilsendt.
             </p>
 
             <!-- Selve innloggingsskjemaet -->
@@ -50,7 +61,7 @@
                   id="login-email"
                   type="email"
                   class="form-control"
-                  placeholder="din@stud.akademiet.no"
+                  placeholder="din@epost.no"
                   required
                 />
               </div>
@@ -182,23 +193,11 @@
       </div>
     </main>
 
-    <!-- Laster Supabase-biblioteket som gjør det mulig å kommunisere med databasen -->
+    <!-- Laster Supabase-biblioteket -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <!-- Her starter vårt eget JavaScript -->
     <!-- Supabase-bibliotek -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <!-- Supabase-bibliotek -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <!-- Supabase-bibliotek -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
     <script>
       // 🔑 Koble nettsiden til ditt Supabase-prosjekt
       const SUPABASE_URL = "https://aiseafkfjhixolxezjjq.supabase.co";
@@ -209,12 +208,12 @@
         SUPABASE_ANON_KEY
       );
 
-      const ALLOWED_DOMAIN = "@stud.akademiet.no";
-
       // UI refs
       const adminArea = document.getElementById("admin-area");
       const refreshBtn = document.getElementById("refresh-btn");
       const clearBtn = document.getElementById("clear-btn");
+      const userBadge = document.getElementById("user-badge");
+      const roleBadge = document.getElementById("role-badge"); // ← NEW
 
       // Auth-UI
       const loginForm = document.getElementById("login-form");
@@ -237,6 +236,26 @@
       let displayName = null;
       let currentRole = "user"; // 'user' | 'admin'
 
+      // NEW: shows current user in navbar
+      function updateUserBadge() {
+        if (currentUser?.email) {
+          const isAdmin = currentRole === "admin";
+          // email badge
+          userBadge.textContent = currentUser.email;
+          userBadge.className = "badge rounded-pill text-bg-secondary";
+          // role badge
+          roleBadge.textContent = isAdmin ? "Admin" : "Bruker";
+          roleBadge.className =
+            "badge rounded-pill " +
+            (isAdmin ? "text-bg-warning" : "text-bg-secondary");
+          roleBadge.classList.remove("d-none");
+        } else {
+          userBadge.textContent = "Gjest";
+          userBadge.className = "badge rounded-pill text-bg-light";
+          roleBadge.classList.add("d-none");
+        }
+      }
+
       // Gjør tekst trygg for visning (hindrer HTML-injeksjon)
       function esc(s) {
         return (s || "").replace(
@@ -254,24 +273,20 @@
 
       // Deler opp meldingen i navn og tekst
       function parseRow(r) {
-        const raw = r.content || "";
-        const i = raw.indexOf("::");
-        return i === -1
-          ? { name: "Anonym", message: raw, created_at: r.created_at }
-          : {
-              name: raw.slice(0, i),
-              message: raw.slice(i + 2),
-              created_at: r.created_at,
-            };
+        // Replace the "::" parser with explicit fields
+        return {
+          name: r.display_name || "Anonym",
+          message: r.message || r.content || "",
+          created_at: r.created_at,
+        };
       }
 
       // Leser meldinger fra databasen og viser dem
       async function loadMessages() {
         statusEl.textContent = "Laster...";
-
         const { data, error } = await supabase
           .from("messages")
-          .select("*")
+          .select("id, message, display_name, created_at")
           .order("created_at", { ascending: false })
           .limit(100);
 
@@ -300,14 +315,6 @@
         statusEl.textContent = "Klar";
       }
 
-      // Sjekk at e-post har riktig domene
-      function hasAllowedDomain(email) {
-        if (!email) return false;
-        const clean = email.trim().toLowerCase();
-        const domain = ALLOWED_DOMAIN.toLowerCase();
-        return clean.endsWith(domain);
-      }
-
       // Sørg for at brukeren har et display-navn lagret i metadata
       async function ensureDisplayName() {
         if (!currentUser) return;
@@ -320,10 +327,22 @@
         ) {
           displayName = metaName.trim();
           nameInput.value = displayName;
+          // Ensure profiles has a row with the name
+          await supabase
+            .from("profiles")
+            .upsert(
+              [
+                {
+                  id: currentUser.id,
+                  email: currentUser.email,
+                  display_name: displayName,
+                },
+              ],
+              { onConflict: "id" }
+            );
           return;
         }
 
-        // Spør bruker om navn første gang
         while (true) {
           const input = prompt(
             "Hva vil du hete når du sender meldinger? (2–30 tegn)"
@@ -338,13 +357,29 @@
             continue;
           }
 
-          // Lagre i Supabase user metadata
           const { data, error } = await supabase.auth.updateUser({
             data: { display_name: trimmed },
           });
-
           if (error) {
             alert("Kunne ikke lagre navnet: " + error.message);
+            return;
+          }
+
+          // Save or create the profiles row with the name
+          const { error: pErr } = await supabase
+            .from("profiles")
+            .upsert(
+              [
+                {
+                  id: currentUser.id,
+                  email: currentUser.email,
+                  display_name: trimmed,
+                },
+              ],
+              { onConflict: "id" }
+            );
+          if (pErr) {
+            alert("Kunne ikke lagre navnet i profiles: " + pErr.message);
             return;
           }
 
@@ -367,21 +402,28 @@
         if (error) {
           console.warn("Kunne ikke hente profilrolle:", error.message);
           currentRole = "user";
+          updateUserBadge();
           return;
         }
         currentRole = data?.role || "user";
+        updateUserBadge();
       }
 
       // UI basert på innlogging
       function updateAuthUI() {
-        if (currentUser && hasAllowedDomain(currentUser.email)) {
+        console.log("DEBUG user:", currentUser?.email);
+        console.log("DEBUG role:", currentRole);
+        updateUserBadge();
+        if (currentUser) {
           appArea.classList.remove("d-none");
           loginForm.classList.add("d-none");
           logoutBtn.classList.remove("d-none");
           loginStatusEl.textContent =
-            "Du er logget inn som " + currentUser.email;
+            "Du er logget inn som " +
+            currentUser.email +
+            " – rolle: " +
+            (currentRole === "admin" ? "Admin" : "Bruker");
 
-          // Vis admin-område kun for admin
           if (currentRole === "admin") {
             adminArea.classList.remove("d-none");
           } else {
@@ -391,12 +433,12 @@
           appArea.classList.add("d-none");
           loginForm.classList.remove("d-none");
           logoutBtn.classList.add("d-none");
-          loginStatusEl.textContent =
-            "Ikke innlogget. Logg inn med " + ALLOWED_DOMAIN + ".";
+          loginStatusEl.textContent = "Ikke innlogget.";
           nameInput.value = "";
           displayName = null;
           currentRole = "user";
           adminArea.classList.add("d-none");
+          updateUserBadge();
         }
       }
 
@@ -405,8 +447,7 @@
         loginStatusEl.textContent = "Sjekker innlogging...";
 
         const { data } = await supabase.auth.getUser();
-        if (data?.user && hasAllowedDomain(data.user.email)) {
-          // Sjekk at e-posten er bekreftet
+        if (data?.user) {
           if (!data.user.confirmed_at) {
             loginStatusEl.textContent =
               "E-posten er ikke bekreftet. Sjekk e-posten din.";
@@ -417,8 +458,9 @@
           }
 
           currentUser = data.user;
+          updateUserBadge();
           await ensureDisplayName();
-          await loadProfileRole(); // ← hent rolle
+          await loadProfileRole();
           updateAuthUI();
           await loadMessages();
         } else {
@@ -427,6 +469,12 @@
           updateAuthUI();
         }
       }
+
+      // Listen to auth changes to keep the badge fresh
+      supabase.auth.onAuthStateChange((_event, session) => {
+        currentUser = session?.user ?? null;
+        updateUserBadge(); // ← NEW
+      });
 
       // Håndter login-skjema
       loginForm.addEventListener("submit", async (e) => {
@@ -440,12 +488,6 @@
           return;
         }
 
-        if (!hasAllowedDomain(email)) {
-          loginStatusEl.textContent =
-            "E-posten må slutte på " + ALLOWED_DOMAIN + ".";
-          return;
-        }
-
         loginStatusEl.textContent = "Logger inn...";
 
         // 1) Prøv å logge inn med e-post + passord
@@ -456,7 +498,6 @@
           });
 
         if (signInError) {
-          // Hvis bruker ikke finnes -> opprett ny og send verifisering
           if (signInError.message.includes("Invalid login credentials")) {
             loginStatusEl.textContent =
               "Bruker finnes ikke – oppretter ny og sender verifisering...";
@@ -481,13 +522,11 @@
             return;
           }
 
-          // Andre feil
           loginStatusEl.textContent =
             "Innlogging feilet: " + signInError.message;
           return;
         }
 
-        // 2) Stop hvis e-posten ikke er bekreftet
         if (!signInData.user.confirmed_at) {
           loginStatusEl.textContent =
             "E-posten er ikke bekreftet ennå. Sjekk innboksen din og klikk på lenken.";
@@ -495,10 +534,9 @@
           return;
         }
 
-        // 3) Innlogging OK
         currentUser = signInData.user;
         await ensureDisplayName();
-        await loadProfileRole(); // ← hent rolle
+        await loadProfileRole();
         updateAuthUI();
         await loadMessages();
       });
@@ -511,21 +549,14 @@
         statusEl.textContent = "Du er logget ut.";
       });
 
-      // Sender inn ny melding når eleven trykker "Lagre"
+      // Sender inn ny melding
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
         form.classList.add("was-validated");
         if (!form.checkValidity()) return;
 
-        if (
-          !currentUser ||
-          !currentUser.email ||
-          !hasAllowedDomain(currentUser.email)
-        ) {
-          statusEl.textContent =
-            "Du må være logget inn med " +
-            ALLOWED_DOMAIN +
-            " for å sende meldinger.";
+        if (!currentUser || !currentUser.email) {
+          statusEl.textContent = "Du må være logget inn for å sende meldinger.";
           return;
         }
 
@@ -544,13 +575,12 @@
         submitBtn.disabled = true;
         statusEl.textContent = "Lagrer...";
 
-        // Only send the message text; DB trigger fills user_id and display_name
+        // Include display_name so it’s not null
         const { error } = await supabase
           .from("messages")
-          .insert({ message: msg });
+          .insert({ message: msg, display_name: displayName });
 
         if (error) console.error("Insert failed", error);
-
         submitBtn.disabled = false;
 
         if (error) {

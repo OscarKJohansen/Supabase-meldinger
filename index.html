@@ -1,436 +1,591 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="no">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Supabase demo — Meldinger</title>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Supabase demo — Meldinger</title>
 
-  <!-- Laster Bootstrap for enkel styling -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Laster Bootstrap for enkel styling -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
 
-  <style>
-    body{background:#f8fafc}
-    .card-elev{border:1px solid #e9ecef;border-radius:1rem}
-    .muted{color:#6c757d}
-  </style>
-</head>
-<body>
-
-  <!-- Toppfelt med tittel -->
-  <nav class="navbar navbar-expand-md bg-white border-bottom">
-    <div class="container">
-      <a class="navbar-brand fw-semibold" href="#">Supabase demo</a>
-    </div>
-  </nav>
-
-<main class="container my-4">
-
-  <!-- LOGIN-KORT -->
-  <div id="auth-area" class="mb-4">
-    <div class="card card-elev shadow-sm">
-      <div class="card-body">
-        <h2 class="h6 mb-3">Logg inn</h2>
-        <p class="text-muted small mb-3">
-          Du må logge inn med skole-epost (<code>@stud.akademiet.no</code>) og bekrefte den via e-post
-          før du kan sende og se meldinger.
-        </p>
-
-        <!-- Selve innloggingsskjemaet -->
-        <form id="login-form" class="row g-2">
-          <div class="col-12 col-md-4">
-            <input id="login-email" type="email" class="form-control" placeholder="din@stud.akademiet.no" required>
-          </div>
-          <div class="col-12 col-md-4">
-            <input id="login-password" type="password" class="form-control" placeholder="Passord" required>
-          </div>
-          <div class="col-12 col-md-4 d-grid d-md-flex gap-2">
-            <button class="btn btn-primary flex-grow-1" type="submit">Logg inn / registrer</button>
-          </div>
-        </form>
-
-        <!-- Status + logg ut -->
-        <div class="d-flex justify-content-between align-items-center mt-3">
-          <p id="login-status" class="small text-muted mb-0">Ikke innlogget.</p>
-          <button class="btn btn-outline-secondary btn-sm d-none" type="button" id="logout-btn">Logg ut</button>
-        </div>
+    <style>
+      body {
+        background: #f8fafc;
+      }
+      .card-elev {
+        border: 1px solid #e9ecef;
+        border-radius: 1rem;
+      }
+      .muted {
+        color: #6c757d;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Toppfelt med tittel -->
+    <nav class="navbar navbar-expand-md bg-white border-bottom">
+      <div class="container">
+        <a class="navbar-brand fw-semibold" href="#">Supabase demo</a>
       </div>
-    </div>
-  </div>
+    </nav>
 
-  <!-- SELVE APPEN – SKJULES TIL MAN ER LOGGET INN -->
-  <div id="app-area" class="d-none">
-    <header class="text-center mb-4">
-      <h1 class="h4 fw-bold">Navn + kort melding</h1>
-      <p class="text-muted mb-0">Skriver til databasen og viser under.</p>
-    </header>
-
-    <!-- Skjema for innsending av navn og melding -->
-    <section class="row g-4">
-      <div class="col-12 col-lg-5">
+    <main class="container my-4">
+      <!-- LOGIN-KORT -->
+      <div id="auth-area" class="mb-4">
         <div class="card card-elev shadow-sm">
           <div class="card-body">
-            <h2 class="h6 mb-3">Send inn</h2>
-            <form id="form" class="needs-validation" novalidate>
-              <div class="mb-3">
-                <label class="form-label" for="name">Navn</label>
-                <!-- Navnet fylles automatisk ut og låses etter første gang -->
-                <input id="name" class="form-control bg-light" minlength="2" maxlength="30" required readonly>
-                <div class="invalid-feedback">Navnet ditt fylles inn automatisk etter innlogging.</div>
-                <div class="form-text">Navnet er knyttet til brukeren din og kan ikke endres her.</div>
+            <h2 class="h6 mb-3">Logg inn</h2>
+            <p class="text-muted small mb-3">
+              Du må logge inn med skole-epost (<code>@stud.akademiet.no</code>)
+              og bekrefte den via e-post før du kan sende og se meldinger.
+            </p>
+
+            <!-- Selve innloggingsskjemaet -->
+            <form id="login-form" class="row g-2">
+              <div class="col-12 col-md-4">
+                <input
+                  id="login-email"
+                  type="email"
+                  class="form-control"
+                  placeholder="din@stud.akademiet.no"
+                  required
+                />
               </div>
-              <div class="mb-3">
-                <label class="form-label" for="content">Kort melding</label>
-                <input id="content" class="form-control" maxlength="140" required placeholder="Hei verden! (maks 140 tegn)">
-                <div class="invalid-feedback">Skriv en kortmelding (maks 140 tegn).</div>
+              <div class="col-12 col-md-4">
+                <input
+                  id="login-password"
+                  type="password"
+                  class="form-control"
+                  placeholder="Passord"
+                  required
+                />
               </div>
-              <button class="btn btn-primary w-100" type="submit">Lagre</button>
-              <div id="status" class="form-text mt-2 muted">Klar</div>
+              <div class="col-12 col-md-4 d-grid d-md-flex gap-2">
+                <button class="btn btn-primary flex-grow-1" type="submit">
+                  Logg inn / registrer
+                </button>
+              </div>
             </form>
-          </div>
-        </div>
-      </div>
 
-      <!-- Område for å vise alle meldinger -->
-      <div class="col-12 col-lg-7">
-        <div class="card card-elev shadow-sm">
-          <div class="card-body">
-            <div class="d-flex align-items-center justify-content-between mb-2">
-              <h2 class="h6 mb-0">Meldinger</h2>
-              <span class="badge text-bg-light"><span id="count">0</span> stk</span>
+            <!-- Status + logg ut -->
+            <div class="d-flex justify-content-between align-items-center mt-3">
+              <p id="login-status" class="small text-muted mb-0">
+                Ikke innlogget.
+              </p>
+              <button
+                class="btn btn-outline-secondary btn-sm d-none"
+                type="button"
+                id="logout-btn"
+              >
+                Logg ut
+              </button>
             </div>
-            <div id="msgs" class="d-grid gap-2"></div>
           </div>
         </div>
       </div>
-    </section>
-  </div>
-</main>
 
+      <!-- SELVE APPEN – SKJULES TIL MAN ER LOGGET INN -->
+      <div id="app-area" class="d-none">
+        <header class="text-center mb-4">
+          <h1 class="h4 fw-bold">Navn + kort melding</h1>
+          <p class="text-muted mb-0">Skriver til databasen og viser under.</p>
+        </header>
 
+        <!-- ADMIN-OMRÅDE (vises kun for admin) -->
+        <section id="admin-area" class="d-none mb-4">
+          <div
+            class="alert alert-warning d-flex justify-content-between align-items-center"
+          >
+            <div>
+              <strong>Admin:</strong> Du er logget inn som admin. Her kan du
+              gjøre admin-ting.
+            </div>
+            <div class="d-flex gap-2">
+              <button id="refresh-btn" class="btn btn-sm btn-outline-dark">
+                Oppdater meldinger
+              </button>
+              <!-- Eksempel: slett alle meldinger -->
+              <button id="clear-btn" class="btn btn-sm btn-outline-danger">
+                Tøm meldinger
+              </button>
+            </div>
+          </div>
+        </section>
 
-  <!-- Laster Supabase-biblioteket som gjør det mulig å kommunisere med databasen -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        <!-- Skjema for innsending av navn og melding -->
+        <section class="row g-4">
+          <div class="col-12 col-lg-5">
+            <div class="card card-elev shadow-sm">
+              <div class="card-body">
+                <h2 class="h6 mb-3">Send inn</h2>
+                <form id="form" class="needs-validation" novalidate>
+                  <div class="mb-3">
+                    <label class="form-label" for="name">Navn</label>
+                    <!-- Navnet fylles automatisk ut og låses etter første gang -->
+                    <input
+                      id="name"
+                      class="form-control bg-light"
+                      minlength="2"
+                      maxlength="30"
+                      required
+                      readonly
+                    />
+                    <div class="invalid-feedback">
+                      Navnet ditt fylles inn automatisk etter innlogging.
+                    </div>
+                    <div class="form-text">
+                      Navnet er knyttet til brukeren din og kan ikke endres her.
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label" for="content">Kort melding</label>
+                    <input
+                      id="content"
+                      class="form-control"
+                      maxlength="140"
+                      required
+                      placeholder="Hei verden! (maks 140 tegn)"
+                    />
+                    <div class="invalid-feedback">
+                      Skriv en kortmelding (maks 140 tegn).
+                    </div>
+                  </div>
+                  <button class="btn btn-primary w-100" type="submit">
+                    Lagre
+                  </button>
+                  <div id="status" class="form-text mt-2 muted">Klar</div>
+                </form>
+              </div>
+            </div>
+          </div>
 
-<!-- Her starter vårt eget JavaScript -->
-<!-- Supabase-bibliotek -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+          <!-- Område for å vise alle meldinger -->
+          <div class="col-12 col-lg-7">
+            <div class="card card-elev shadow-sm">
+              <div class="card-body">
+                <div
+                  class="d-flex align-items-center justify-content-between mb-2"
+                >
+                  <h2 class="h6 mb-0">Meldinger</h2>
+                  <span class="badge text-bg-light"
+                    ><span id="count">0</span> stk</span
+                  >
+                </div>
+                <div id="msgs" class="d-grid gap-2"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
 
-<!-- Supabase-bibliotek -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Laster Supabase-biblioteket som gjør det mulig å kommunisere med databasen -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<!-- Supabase-bibliotek -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Her starter vårt eget JavaScript -->
+    <!-- Supabase-bibliotek -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Supabase-bibliotek -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Supabase-bibliotek -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<script>
-  // 🔑 Koble nettsiden til ditt Supabase-prosjekt
-  const SUPABASE_URL = "https://aiseafkfjhixolxezjjq.supabase.co";
-  const SUPABASE_ANON_KEY = "sb_publishable_mdoTv5Opu_0idPCaV64_6A_nIegPRg1";
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  const ALLOWED_DOMAIN = "@stud.akademiet.no";
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  // Auth-UI
-  const loginForm = document.getElementById('login-form');
-  const loginEmailInput = document.getElementById('login-email');
-  const loginPasswordInput = document.getElementById('login-password');
-  const loginStatusEl = document.getElementById('login-status');
-  const logoutBtn = document.getElementById('logout-btn');
-  const appArea = document.getElementById('app-area');
+    <script>
+      // 🔑 Koble nettsiden til ditt Supabase-prosjekt
+      const SUPABASE_URL = "https://aiseafkfjhixolxezjjq.supabase.co";
+      const SUPABASE_ANON_KEY =
+        "sb_publishable_mdoTv5Opu_0idPCaV64_6A_nIegPRg1";
+      const supabase = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+      );
 
-  // Meldings-UI
-  const form = document.getElementById('form');
-  const nameInput = document.getElementById('name');
-  const contentInput = document.getElementById('content');
-  const msgsEl = document.getElementById('msgs');
-  const statusEl = document.getElementById('status');
-  const countEl = document.getElementById('count');
+      const ALLOWED_DOMAIN = "@stud.akademiet.no";
 
-  // Holder på innlogget bruker + display-navn
-  let currentUser = null;
-  let displayName = null;
+      // UI refs
+      const adminArea = document.getElementById("admin-area");
+      const refreshBtn = document.getElementById("refresh-btn");
+      const clearBtn = document.getElementById("clear-btn");
 
-  // Gjør tekst trygg for visning (hindrer HTML-injeksjon)
-  function esc(s) {
-    return (s || '').replace(/[<>&"']/g, c => ({
-      '<': '&lt;',
-      '>': '&gt;',
-      '&': '&amp;',
-      '"': '&quot;',
-      "'": '&#39;',
-    }[c]));
-  }
+      // Auth-UI
+      const loginForm = document.getElementById("login-form");
+      const loginEmailInput = document.getElementById("login-email");
+      const loginPasswordInput = document.getElementById("login-password");
+      const loginStatusEl = document.getElementById("login-status");
+      const logoutBtn = document.getElementById("logout-btn");
+      const appArea = document.getElementById("app-area");
 
-  // Deler opp meldingen i navn og tekst
-  function parseRow(r) {
-    const raw = r.content || '';
-    const i = raw.indexOf('::');
-    return i === -1
-      ? { name: 'Anonym', message: raw, created_at: r.created_at }
-      : { name: raw.slice(0, i), message: raw.slice(i + 2), created_at: r.created_at };
-  }
+      // Meldings-UI
+      const form = document.getElementById("form");
+      const nameInput = document.getElementById("name");
+      const contentInput = document.getElementById("content");
+      const msgsEl = document.getElementById("msgs");
+      const statusEl = document.getElementById("status");
+      const countEl = document.getElementById("count");
 
-  // Leser meldinger fra databasen og viser dem
-  async function loadMessages() {
-    statusEl.textContent = 'Laster...';
+      // Holder på innlogget bruker + display-navn + rolle
+      let currentUser = null;
+      let displayName = null;
+      let currentRole = "user"; // 'user' | 'admin'
 
-    const { data, error } = await supabase
-      .from('messages')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(100);
+      // Gjør tekst trygg for visning (hindrer HTML-injeksjon)
+      function esc(s) {
+        return (s || "").replace(
+          /[<>&"']/g,
+          (c) =>
+            ({
+              "<": "&lt;",
+              ">": "&gt;",
+              "&": "&amp;",
+              '"': "&quot;",
+              "'": "&#39;",
+            }[c])
+        );
+      }
 
-    if (error) {
-      statusEl.textContent = 'Feil: ' + error.message;
-      return;
-    }
+      // Deler opp meldingen i navn og tekst
+      function parseRow(r) {
+        const raw = r.content || "";
+        const i = raw.indexOf("::");
+        return i === -1
+          ? { name: "Anonym", message: raw, created_at: r.created_at }
+          : {
+              name: raw.slice(0, i),
+              message: raw.slice(i + 2),
+              created_at: r.created_at,
+            };
+      }
 
-    countEl.textContent = (data || []).length;
+      // Leser meldinger fra databasen og viser dem
+      async function loadMessages() {
+        statusEl.textContent = "Laster...";
 
-    msgsEl.innerHTML = (data || []).map(r => {
-      const it = parseRow(r);
-      const when = new Date(it.created_at).toLocaleString();
+        const { data, error } = await supabase
+          .from("messages")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .limit(100);
 
-      return `
+        if (error) {
+          statusEl.textContent = "Feil: " + error.message;
+          return;
+        }
+
+        countEl.textContent = (data || []).length;
+
+        msgsEl.innerHTML = (data || [])
+          .map((r) => {
+            const it = parseRow(r);
+            const when = new Date(it.created_at).toLocaleString();
+
+            return `
         <div class="border rounded p-2">
           <div class="fw-semibold">${esc(it.name)}</div>
           <div>${esc(it.message)}</div>
           <div class="small text-muted">${when}</div>
         </div>
       `;
-    }).join('');
+          })
+          .join("");
 
-    statusEl.textContent = 'Klar';
-  }
-
-  // Sjekk at e-post har riktig domene
-  function hasAllowedDomain(email) {
-    if (!email) return false;
-    const clean = email.trim().toLowerCase();
-    const domain = ALLOWED_DOMAIN.toLowerCase();
-    return clean.endsWith(domain);
-  }
-
-  // Sørg for at brukeren har et display-navn lagret i metadata
-  async function ensureDisplayName() {
-    if (!currentUser) return;
-
-    let metaName = currentUser.user_metadata?.display_name;
-    if (metaName && metaName.trim().length >= 2 && metaName.trim().length <= 30) {
-      displayName = metaName.trim();
-      nameInput.value = displayName;
-      return;
-    }
-
-    // Spør bruker om navn første gang
-    while (true) {
-      const input = prompt('Hva vil du hete når du sender meldinger? (2–30 tegn)');
-      if (!input) {
-        alert('Du må velge et navn for å bruke tjenesten.');
-        continue;
-      }
-      const trimmed = input.trim();
-      if (trimmed.length < 2 || trimmed.length > 30) {
-        alert('Navnet må være mellom 2 og 30 tegn.');
-        continue;
+        statusEl.textContent = "Klar";
       }
 
-      // Lagre i Supabase user metadata
-      const { data, error } = await supabase.auth.updateUser({
-        data: { display_name: trimmed }
-      });
-
-      if (error) {
-        alert('Kunne ikke lagre navnet: ' + error.message);
-        return;
+      // Sjekk at e-post har riktig domene
+      function hasAllowedDomain(email) {
+        if (!email) return false;
+        const clean = email.trim().toLowerCase();
+        const domain = ALLOWED_DOMAIN.toLowerCase();
+        return clean.endsWith(domain);
       }
 
-      currentUser = data.user;
-      displayName = trimmed;
-      nameInput.value = displayName;
-      break;
-    }
-  }
+      // Sørg for at brukeren har et display-navn lagret i metadata
+      async function ensureDisplayName() {
+        if (!currentUser) return;
 
-  // UI basert på innlogging
-  function updateAuthUI() {
-    if (currentUser && hasAllowedDomain(currentUser.email)) {
-      appArea.classList.remove('d-none');
-
-      // Skjul innloggingsskjemaet, vis bare status + logg ut
-      loginForm.classList.add('d-none');
-      logoutBtn.classList.remove('d-none');
-      loginStatusEl.textContent = 'Du er logget inn som ' + currentUser.email;
-    } else {
-      appArea.classList.add('d-none');
-
-      loginForm.classList.remove('d-none');
-      logoutBtn.classList.add('d-none');
-      loginStatusEl.textContent = 'Ikke innlogget. Logg inn med ' + ALLOWED_DOMAIN + '.';
-      nameInput.value = '';
-      displayName = null;
-    }
-  }
-
-  // Sjekk innlogging ved side-load
-  async function ensureAuthOnLoad() {
-    loginStatusEl.textContent = 'Sjekker innlogging...';
-
-    const { data } = await supabase.auth.getUser();
-    if (data?.user && hasAllowedDomain(data.user.email)) {
-
-      // Sjekk at e-posten er bekreftet
-      if (!data.user.confirmed_at) {
-        loginStatusEl.textContent = 'E-posten er ikke bekreftet. Sjekk e-posten din.';
-        await supabase.auth.signOut();
-        currentUser = null;
-        updateAuthUI();
-        return;
-      }
-
-      currentUser = data.user;
-      await ensureDisplayName();
-      updateAuthUI();
-      await loadMessages();
-    } else {
-      currentUser = null;
-      await supabase.auth.signOut();
-      updateAuthUI();
-    }
-  }
-
-  // Håndter login-skjema
-  loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    let email = loginEmailInput.value.trim().toLowerCase();
-    const password = loginPasswordInput.value;
-
-    if (!email || !password) {
-      loginStatusEl.textContent = 'Skriv inn både e-post og passord.';
-      return;
-    }
-
-    if (!hasAllowedDomain(email)) {
-      loginStatusEl.textContent = 'E-posten må slutte på ' + ALLOWED_DOMAIN + '.';
-      return;
-    }
-
-    loginStatusEl.textContent = 'Logger inn...';
-
-    // 1) Prøv å logge inn med e-post + passord
-    let { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
-
-    if (signInError) {
-      // Hvis bruker ikke finnes -> opprett ny og send verifisering
-      if (signInError.message.includes('Invalid login credentials')) {
-        loginStatusEl.textContent = 'Bruker finnes ikke – oppretter ny og sender verifisering...';
-
-        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: window.location.href
-          }
-        });
-
-        if (signUpError) {
-          loginStatusEl.textContent = 'Feil ved oppretting av bruker: ' + signUpError.message;
+        let metaName = currentUser.user_metadata?.display_name;
+        if (
+          metaName &&
+          metaName.trim().length >= 2 &&
+          metaName.trim().length <= 30
+        ) {
+          displayName = metaName.trim();
+          nameInput.value = displayName;
           return;
         }
 
-        loginStatusEl.textContent =
-          'Bruker opprettet! Sjekk e-posten din for en bekreftelseslenke før du kan logge inn.';
-        return;
+        // Spør bruker om navn første gang
+        while (true) {
+          const input = prompt(
+            "Hva vil du hete når du sender meldinger? (2–30 tegn)"
+          );
+          if (!input) {
+            alert("Du må velge et navn for å bruke tjenesten.");
+            continue;
+          }
+          const trimmed = input.trim();
+          if (trimmed.length < 2 || trimmed.length > 30) {
+            alert("Navnet må være mellom 2 og 30 tegn.");
+            continue;
+          }
+
+          // Lagre i Supabase user metadata
+          const { data, error } = await supabase.auth.updateUser({
+            data: { display_name: trimmed },
+          });
+
+          if (error) {
+            alert("Kunne ikke lagre navnet: " + error.message);
+            return;
+          }
+
+          currentUser = data.user;
+          displayName = trimmed;
+          nameInput.value = displayName;
+          break;
+        }
       }
 
-      // Andre feil
-      loginStatusEl.textContent = 'Innlogging feilet: ' + signInError.message;
-      return;
-    }
+      // Hent profil/rolle for innlogget bruker
+      async function loadProfileRole() {
+        if (!currentUser) return;
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", currentUser.id)
+          .single();
 
-    // 2) Stop hvis e-posten ikke er bekreftet
-    if (!signInData.user.confirmed_at) {
-      loginStatusEl.textContent =
-        'E-posten er ikke bekreftet ennå. Sjekk innboksen din og klikk på lenken.';
-      await supabase.auth.signOut();
-      return;
-    }
-
-    // 3) Innlogging OK
-    currentUser = signInData.user;
-    await ensureDisplayName();
-    updateAuthUI();
-    await loadMessages();
-  });
-
-  // Logg ut-knapp
-  logoutBtn.addEventListener('click', async () => {
-    await supabase.auth.signOut();
-    currentUser = null;
-    updateAuthUI();
-    statusEl.textContent = 'Du er logget ut.';
-  });
-
-  // Sender inn ny melding når eleven trykker "Lagre"
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    form.classList.add('was-validated');
-    if (!form.checkValidity()) return;
-
-    if (!currentUser || !currentUser.email || !hasAllowedDomain(currentUser.email)) {
-      statusEl.textContent = 'Du må være logget inn med ' + ALLOWED_DOMAIN + ' for å sende meldinger.';
-      return;
-    }
-
-    if (!displayName) {
-      await ensureDisplayName();
-      if (!displayName) {
-        statusEl.textContent = 'Kunne ikke hente navnet ditt.';
-        return;
+        if (error) {
+          console.warn("Kunne ikke hente profilrolle:", error.message);
+          currentRole = "user";
+          return;
+        }
+        currentRole = data?.role || "user";
       }
-    }
 
-    const msg = contentInput.value.trim();
-    if (!msg) return;
+      // UI basert på innlogging
+      function updateAuthUI() {
+        if (currentUser && hasAllowedDomain(currentUser.email)) {
+          appArea.classList.remove("d-none");
+          loginForm.classList.add("d-none");
+          logoutBtn.classList.remove("d-none");
+          loginStatusEl.textContent =
+            "Du er logget inn som " + currentUser.email;
 
-    const submitBtn = form.querySelector('button[type="submit"]');
-    submitBtn.disabled = true;
-    statusEl.textContent = 'Lagrer...';
+          // Vis admin-område kun for admin
+          if (currentRole === "admin") {
+            adminArea.classList.remove("d-none");
+          } else {
+            adminArea.classList.add("d-none");
+          }
+        } else {
+          appArea.classList.add("d-none");
+          loginForm.classList.remove("d-none");
+          logoutBtn.classList.add("d-none");
+          loginStatusEl.textContent =
+            "Ikke innlogget. Logg inn med " + ALLOWED_DOMAIN + ".";
+          nameInput.value = "";
+          displayName = null;
+          currentRole = "user";
+          adminArea.classList.add("d-none");
+        }
+      }
 
-    const { error } = await supabase
-      .from('messages')
-      .insert({ content: displayName + '::' + msg });
+      // Sjekk innlogging ved side-load
+      async function ensureAuthOnLoad() {
+        loginStatusEl.textContent = "Sjekker innlogging...";
 
-    submitBtn.disabled = false;
+        const { data } = await supabase.auth.getUser();
+        if (data?.user && hasAllowedDomain(data.user.email)) {
+          // Sjekk at e-posten er bekreftet
+          if (!data.user.confirmed_at) {
+            loginStatusEl.textContent =
+              "E-posten er ikke bekreftet. Sjekk e-posten din.";
+            await supabase.auth.signOut();
+            currentUser = null;
+            updateAuthUI();
+            return;
+          }
 
-    if (error) {
-      statusEl.textContent = 'Feil ved lagring: ' + error.message;
-      return;
-    }
+          currentUser = data.user;
+          await ensureDisplayName();
+          await loadProfileRole(); // ← hent rolle
+          updateAuthUI();
+          await loadMessages();
+        } else {
+          currentUser = null;
+          await supabase.auth.signOut();
+          updateAuthUI();
+        }
+      }
 
-    form.classList.remove('was-validated');
-    contentInput.value = '';
-    statusEl.textContent = 'Lagret!';
-    contentInput.focus();
+      // Håndter login-skjema
+      loginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
 
-    await loadMessages();
-  });
+        let email = loginEmailInput.value.trim().toLowerCase();
+        const password = loginPasswordInput.value;
 
-  // Start: sjekk om noen er logget inn fra før
-  ensureAuthOnLoad();
-</script>
+        if (!email || !password) {
+          loginStatusEl.textContent = "Skriv inn både e-post og passord.";
+          return;
+        }
 
+        if (!hasAllowedDomain(email)) {
+          loginStatusEl.textContent =
+            "E-posten må slutte på " + ALLOWED_DOMAIN + ".";
+          return;
+        }
 
+        loginStatusEl.textContent = "Logger inn...";
 
+        // 1) Prøv å logge inn med e-post + passord
+        let { data: signInData, error: signInError } =
+          await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
 
+        if (signInError) {
+          // Hvis bruker ikke finnes -> opprett ny og send verifisering
+          if (signInError.message.includes("Invalid login credentials")) {
+            loginStatusEl.textContent =
+              "Bruker finnes ikke – oppretter ny og sender verifisering...";
 
+            const { data: signUpData, error: signUpError } =
+              await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                  emailRedirectTo: window.location.href,
+                },
+              });
 
-          </body>
-          </html>
+            if (signUpError) {
+              loginStatusEl.textContent =
+                "Feil ved oppretting av bruker: " + signUpError.message;
+              return;
+            }
+
+            loginStatusEl.textContent =
+              "Bruker opprettet! Sjekk e-posten din for en bekreftelseslenke før du kan logge inn.";
+            return;
+          }
+
+          // Andre feil
+          loginStatusEl.textContent =
+            "Innlogging feilet: " + signInError.message;
+          return;
+        }
+
+        // 2) Stop hvis e-posten ikke er bekreftet
+        if (!signInData.user.confirmed_at) {
+          loginStatusEl.textContent =
+            "E-posten er ikke bekreftet ennå. Sjekk innboksen din og klikk på lenken.";
+          await supabase.auth.signOut();
+          return;
+        }
+
+        // 3) Innlogging OK
+        currentUser = signInData.user;
+        await ensureDisplayName();
+        await loadProfileRole(); // ← hent rolle
+        updateAuthUI();
+        await loadMessages();
+      });
+
+      // Logg ut-knapp
+      logoutBtn.addEventListener("click", async () => {
+        await supabase.auth.signOut();
+        currentUser = null;
+        updateAuthUI();
+        statusEl.textContent = "Du er logget ut.";
+      });
+
+      // Sender inn ny melding når eleven trykker "Lagre"
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        form.classList.add("was-validated");
+        if (!form.checkValidity()) return;
+
+        if (
+          !currentUser ||
+          !currentUser.email ||
+          !hasAllowedDomain(currentUser.email)
+        ) {
+          statusEl.textContent =
+            "Du må være logget inn med " +
+            ALLOWED_DOMAIN +
+            " for å sende meldinger.";
+          return;
+        }
+
+        if (!displayName) {
+          await ensureDisplayName();
+          if (!displayName) {
+            statusEl.textContent = "Kunne ikke hente navnet ditt.";
+            return;
+          }
+        }
+
+        const msg = contentInput.value.trim();
+        if (!msg) return;
+
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        statusEl.textContent = "Lagrer...";
+
+        // Only send the message text; DB trigger fills user_id and display_name
+        const { error } = await supabase
+          .from("messages")
+          .insert({ message: msg });
+
+        if (error) console.error("Insert failed", error);
+
+        submitBtn.disabled = false;
+
+        if (error) {
+          statusEl.textContent = "Feil ved lagring: " + error.message;
+          return;
+        }
+
+        form.classList.remove("was-validated");
+        contentInput.value = "";
+        statusEl.textContent = "Lagret!";
+        contentInput.focus();
+
+        await loadMessages();
+      });
+
+      // Admin-handlinger
+      refreshBtn?.addEventListener("click", async () => {
+        await loadMessages();
+      });
+
+      clearBtn?.addEventListener("click", async () => {
+        if (currentRole !== "admin") return;
+        if (!confirm("Er du sikker på at du vil slette alle meldinger?"))
+          return;
+
+        const { error } = await supabase.from("messages").delete().neq("id", 0);
+        if (error) {
+          alert("Feil ved sletting: " + error.message);
+          return;
+        }
+        await loadMessages();
+      });
+
+      // Start: sjekk om noen er logget inn fra før
+      ensureAuthOnLoad();
+    </script>
+  </body>
+</html>

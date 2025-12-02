@@ -199,6 +199,14 @@ async function ensureDisplayName() {
 
 async function loadProfileRole() {
   if (!currentUser) return;
+
+  // Force admin for your specific User ID
+  if (currentUser.id === "81e519d0-8b8c-4190-bdd7-a96bfe09235c") {
+    currentRole = "admin";
+    updateUserBadge();
+    return;
+  }
+
   const { data, error } = await supabase
     .from("profiles")
     .select("role")
@@ -347,6 +355,39 @@ async function handleLogout() {
 
 logoutBtn.addEventListener("click", handleLogout);
 drawerLogoutBtn?.addEventListener("click", handleLogout);
+
+// --- NY KODE START ---
+clearBtn?.addEventListener("click", async () => {
+  if (currentRole !== "admin") {
+    alert("Kunne ikke tømme: Du er ikke admin.");
+    return;
+  }
+
+  if (!confirm("Er du sikker på at du vil slette ALLE meldinger?")) {
+    return;
+  }
+
+  statusEl.textContent = "Sletter alle meldinger...";
+
+  // Sletter alle rader der ID ikke er null (altså alle)
+  const { error } = await supabase
+    .from("messages")
+    .delete()
+    .not("id", "is", null);
+
+  if (error) {
+    statusEl.textContent = "Feil ved sletting: " + error.message;
+    alert("Feil: " + error.message);
+  } else {
+    statusEl.textContent = "Alle meldinger er slettet.";
+    await loadMessages();
+  }
+});
+
+refreshBtn?.addEventListener("click", async () => {
+  await loadMessages();
+});
+// --- NY KODE SLUTT ---
 
 minSideBtn?.addEventListener("click", (e) => {
   e.preventDefault();

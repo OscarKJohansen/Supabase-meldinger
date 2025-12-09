@@ -70,114 +70,160 @@
 
       <!-- Portfolio home (shown after login) -->
       <section id="portfolio-area" class="d-none">
-        <header class="d-flex align-items-center justify-content-between mb-4">
-          <h1 class="display-6 fw-bold mb-0">Portfolio</h1>
-          <button id="min-side-btn" class="btn btn-primary btn-rounded">
-            Min side
-          </button>
-        </header>
+        <div class="row">
+          <!-- Main content area -->
+          <div class="col-lg-9">
+            <header
+              class="d-flex align-items-center justify-content-between mb-4"
+            >
+              <h1 class="display-6 fw-bold mb-0">Portfolio</h1>
+              <button id="min-side-btn" class="btn btn-primary btn-rounded">
+                Min side
+              </button>
+            </header>
 
-        <div class="row g-3">
-          <div class="col-12 col-md-6 col-lg-4">
-            <div id="open-messages" class="card card-click shadow-sm">
-              <div class="card-body">
-                <h3 class="h5 fw-semibold mb-2">Meldinger</h3>
-                <p class="text-muted mb-0">Se og send meldinger</p>
+            <div class="row g-3">
+              <div class="col-12 col-md-6 col-lg-4">
+                <div
+                  id="open-messages"
+                  class="card card-click shadow-sm"
+                  style="cursor: pointer"
+                >
+                  <div class="card-body">
+                    <h3 class="h5 fw-semibold mb-2">Meldinger</h3>
+                    <p class="text-muted mb-0">Se og send meldinger</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12 col-md-6 col-lg-4">
+                <div
+                  id="project1"
+                  class="card card-elev shadow-sm"
+                  style="cursor: pointer"
+                >
+                  <div class="card-body">
+                    <h3 class="h5 fw-semibold mb-2">Python Oppgaver</h3>
+                    <p class="text-muted mb-0">Grunnleggende Python kode</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12 col-md-6 col-lg-4">
+                <div
+                  id="project2"
+                  class="card card-elev shadow-sm"
+                  style="cursor: pointer"
+                >
+                  <div class="card-body">
+                    <h3 class="h5 fw-semibold mb-2">Python prosjekt</h3>
+                    <p class="text-muted mb-0">Python kode.</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Divider -->
+              <div class="col-12">
+                <hr class="my-4" />
+              </div>
+
+              <!-- Supabase Projects Section -->
+              <div class="col-12">
+                <h2 class="h5 fw-semibold mt-4 mb-3">Supabase Prosjekt</h2>
+              </div>
+
+              <div class="col-12 col-md-6 col-lg-4">
+                <div
+                  id="project3"
+                  class="card card-elev shadow-sm"
+                  style="cursor: pointer"
+                >
+                  <div class="card-body">
+                    <h3 class="h5 fw-semibold mb-2">Innloggingssystem</h3>
+                    <p class="text-muted mb-0">
+                      Klikk for å lese hvordan det ble laget.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12 col-md-6 col-lg-4">
+                <div
+                  id="project3-kompetanse"
+                  class="card card-elev shadow-sm"
+                  style="cursor: pointer"
+                >
+                  <div class="card-body">
+                    <h3 class="h5 fw-semibold mb-2">
+                      Kompetansemål jeg utfylte
+                    </h3>
+                    <p class="text-muted mb-0">Klikk for å lese mer</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Divider -->
+              <div class="col-12">
+                <hr class="my-4" />
+              </div>
+
+              <!-- Bootstrap og Flexbox Projects Section -->
+              <div class="col-12">
+                <h2 class="h5 fw-semibold mt-4 mb-3">
+                  Bootstrap og Flexbox Prosjekt
+                </h2>
+              </div>
+
+              <div class="col-12 col-md-6 col-lg-4">
+                <div
+                  id="project4"
+                  class="card card-elev shadow-sm"
+                  style="cursor: pointer"
+                >
+                  <div class="card-body">
+                    <h3 class="h5 fw-semibold mb-2">
+                      Nettsiden min jeg brukte bootstrap og flexbox til
+                    </h3>
+                    <p class="text-muted mb-0">Klikk for å se prosjektet</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12 col-md-6 col-lg-4">
+                <div
+                  id="project5"
+                  class="card card-elev shadow-sm"
+                  style="cursor: pointer"
+                >
+                  <div class="card-body">
+                    <h3 class="h5 fw-semibold mb-2">
+                      Hvilke kompetanse mål jeg utfylte med bootstrap og flexbox
+                      prosjektet
+                    </h3>
+                    <p class="text-muted mb-0">
+                      Trykk her for å åpne prosjektet
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          <div class="col-12 col-md-6 col-lg-4">
-            <div
-              id="project2"
-              class="card card-elev shadow-sm"
-              style="cursor: pointer"
-            >
-              <div class="card-body">
-                <h3 class="h5 fw-semibold mb-2">Python prosjekt</h3>
-                <p class="text-muted mb-0">Python kode.</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Divider -->
-          <div class="col-12">
-            <hr class="my-4" />
-          </div>
-
-          <!-- Supabase Projects Section -->
-          <div class="col-12">
-            <h2 class="h5 fw-semibold mt-4 mb-3">Supabase Prosjekt</h2>
-          </div>
-
-          <div class="col-12 col-md-6 col-lg-4">
-            <div
-              id="project3"
-              class="card card-elev shadow-sm"
-              style="cursor: pointer"
-            >
-              <div class="card-body">
-                <h3 class="h5 fw-semibold mb-2">Innloggingssystem</h3>
-                <p class="text-muted mb-0">
-                  Klikk for å lese hvordan det ble laget.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-12 col-md-6 col-lg-4">
-            <div
-              id="project3-kompetanse"
-              class="card card-elev shadow-sm"
-              style="cursor: pointer"
-            >
-              <div class="card-body">
-                <h3 class="h5 fw-semibold mb-2">Kompetansemål jeg utfylte</h3>
-                <p class="text-muted mb-0">Klikk for å lese mer</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Divider -->
-          <div class="col-12">
-            <hr class="my-4" />
-          </div>
-
-          <!-- Bootstrap og Flexbox Projects Section -->
-          <div class="col-12">
-            <h2 class="h5 fw-semibold mt-4 mb-3">
-              Bootstrap og Flexbox Prosjekt
-            </h2>
-          </div>
-
-          <div class="col-12 col-md-6 col-lg-4">
-            <div
-              id="project4"
-              class="card card-elev shadow-sm"
-              style="cursor: pointer"
-            >
-              <div class="card-body">
-                <h3 class="h5 fw-semibold mb-2">
-                  Nettsiden min jeg brukte bootstrap og flexbox til
-                </h3>
-                <p class="text-muted mb-0">Klikk for å se prosjektet</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-12 col-md-6 col-lg-4">
-            <div
-              id="project5"
-              class="card card-elev shadow-sm"
-              style="cursor: pointer"
-            >
-              <div class="card-body">
-                <h3 class="h5 fw-semibold mb-2">
-                  Hvilke kompetanse mål jeg utfylte med bootstrap og flexbox
-                  prosjektet
-                </h3>
-                <p class="text-muted mb-0">Trykk her for å åpne prosjektet</p>
-              </div>
+          <!-- Ad sidebar (only on large screens) -->
+          <div class="col-lg-3 d-none d-lg-block">
+            <div class="sticky-top" style="top: 20px">
+              <!-- Ad 1 -->
+              <ins
+                class="adsbygoogle"
+                style="display: block"
+                data-ad-client="ca-pub-3146019535106543"
+                data-ad-slot="3336041516"
+                data-ad-format="auto"
+                data-full-width-responsive="true"
+              ></ins>
+              <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+              </script>
             </div>
           </div>
         </div>
@@ -261,6 +307,38 @@
           </div>
         </div>
       </div>
+
+      <!-- Project 1 page -->
+      <section id="project1-area" class="d-none">
+        <header class="d-flex align-items-center justify-content-between mb-3">
+          <h2 class="h5 fw-bold mb-0">Python Oppgaver</h2>
+          <button
+            id="project1-back-btn"
+            class="btn btn-sm btn-outline-secondary"
+          >
+            Tilbake
+          </button>
+        </header>
+
+        <div class="card card-elev">
+          <div class="card-body">
+            <pre
+              style="
+                background: #1e1e1e;
+                color: #d4d4d4;
+                padding: 1rem;
+                border-radius: 0.5rem;
+                overflow: auto;
+                max-height: 70vh;
+                margin: 0;
+                border: 1px solid var(--border);
+              "
+            >
+              <code id="project1-content" style="white-space:pre-wrap;display:block;color:inherit;"></code>
+            </pre>
+          </div>
+        </div>
+      </section>
 
       <!-- Project 2 page -->
       <section id="project2-area" class="d-none">

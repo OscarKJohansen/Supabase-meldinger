@@ -152,6 +152,85 @@ ensureAuthOnLoad().then(() => {
   loadMessages();
 });
 
+// Project 1
+const project1Code = `#Oppgave 1.
+#Svaret ville vært 0 siden tall varibalene er lik svaret til 13-9 som er 4 og du oppdaterer variabelen med seg selv minus seg selv så det blir 0.
+
+#Oppgave 2.
+#B er 19 siden a er større enn 10 som vil si at if løkken blir oppfylt. Da kjører den koden b = a + b som er i 1
+
+#Oppgave 3.
+navn = "Oscar"
+farge = "Hvit"
+by = "Drammen"
+print(f"Hei jeg heter {navn}\\nYndlingsfargen min er {farge}. \\nJeg bor i {by}.")
+
+#Oppgave 4.
+#< betyr at den er større enn tallet som kommer etter det første. For eksempel 1 < 2 er sant fordi 2 er større enn 1.
+#> Derimot betyr at den er mindre enn tallet som kommer etter det første. For eksempel 2 > 1 er sant fordi 2 er større enn 1.
+#= betyr at de er like. For eksempel 1 = 1 er sant fordi de er like. Men ikke identiske. det kan være at 3+2=5 er sant,
+#== betyr at de er helt identiske. For eksempel 1.4 == 1.4 er sant fordi de er like. Men 3+2 == 5 er ikke sant fordi de ikke er helt identiske.
+
+#Oppgave 5.
+# A) Først åpner du terminalen. Så skriver du cd hvis du ikke allerede er i hjemmappen din. Etter det må du skrive cd kode for å åpne mappen. Men du må skrive ls først hvis du ikke vet hva mappen heter.
+# B) Du skriver python3 Oscar.py for å kjøre koden i Oscar.py filen. Hvis du ikke er i mappen der Oscar.py ligger, må du skrive cd Prøve først for å åpne mappen. Etter det kan du skrive python3 Oscar.py.
+# B)  Det er at det ikke er en python-fil. Det er en png-fil som er et bilde. En python-fil må ha .py som filendelse for at den skal kunne kjøres i python. Så du må endre filnavnet til helloworld.py for at det skal være en gyldig python-fil.
+
+#Oppgave 6.
+# Den vil printe hade fordi 4 er ikke større enn 6. Den vil heller ikke printe at det er på tide åskrifte sommerdekk siden 6 er ikke større enn 10.
+
+#Oppgave 7.
+
+score = 0
+liste = ["Det var helt riktig", "Det var ikke riktig prøv igjen"]
+#Jeg bruker en liste siden da kan jeg skrive 0 og 1 istedenfor rktig og galt. Det gjør det lettere å bruke i koden.
+svar = input("Hvem er statsminister i Norge? ")
+if svar.lower() == "jonas gahr støre":
+    print(liste[0])
+    score += 1
+
+else:
+    print(liste[1])
+print("----------------------------------")
+  
+#Oppgave 8.
+liste = ["a", "b", "c"]
+liste.append("d")
+for i in range(2):
+    print(liste[i])
+print("----------------------------------")
+
+#Oppgave 9.
+import time
+time.sleep(1) 
+i = 1
+while i <= 10:
+    print(i)
+    time.sleep(1)
+    i += 1
+`;
+
+document.getElementById("project1")?.addEventListener("click", (e) => {
+  e.preventDefault();
+  document.getElementById("portfolio-area")?.classList.add("d-none");
+  document.getElementById("app-area")?.classList.add("d-none");
+  document.getElementById("project2-area")?.classList.add("d-none");
+  document.getElementById("project3-area")?.classList.add("d-none");
+  document.getElementById("project4-area")?.classList.add("d-none");
+  document.getElementById("project5-area")?.classList.add("d-none");
+  document.getElementById("project1-area")?.classList.remove("d-none");
+  const project1Content = document.getElementById("project1-content");
+  if (project1Content) project1Content.textContent = project1Code;
+  window.scrollTo(0, 0);
+});
+
+document.getElementById("project1-back-btn")?.addEventListener("click", (e) => {
+  e.preventDefault();
+  document.getElementById("project1-area")?.classList.add("d-none");
+  document.getElementById("portfolio-area")?.classList.remove("d-none");
+  window.scrollTo(0, 0);
+});
+
 // Project 2
 const pythonCode = `import random
 
